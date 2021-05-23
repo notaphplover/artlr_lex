@@ -201,7 +201,7 @@ mod test {
     use crate::lex::lexical_analyzer::LexicalAnalyzer as LexicalAnalyzerTrait;
     use crate::lex::lexical_analyzer_impl::LexicalAnalyzer;
     use crate::token::traceable_token::TraceableToken;
-    use crate::token_regex::TokenRegex;
+    use crate::token::token_regex::TokenRegex;
 
     #[derive(Clone, Copy, Debug, PartialEq)]
     pub enum IgnoredTokenTypeTest {

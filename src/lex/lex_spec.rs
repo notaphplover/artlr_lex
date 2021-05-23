@@ -1,4 +1,4 @@
-use crate::token_regex::TokenRegex;
+use crate::token::token_regex::TokenRegex;
 
 pub trait LexSpec<TType> {
     fn get_eof_token(&self) -> TType;
