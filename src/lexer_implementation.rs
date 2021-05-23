@@ -77,11 +77,7 @@ impl<'a, 'b, TType: Copy + PartialEq> LexerImplementation<'a, 'b, TType> {
                     );
 
                 next_token_parsed_option.map(|token| -> TraceableToken<TType> {
-                    let text_location: TextLocation = TextLocation::new(
-                        self.current_location.column,
-                        self.current_location.line
-                    );
-
+                    let text_location: TextLocation = self.current_location.clone();
                     let traceable_token: TraceableToken<TType> = TraceableToken::new(text_location, token);
 
                     LexerImplementation::update_current_location(
@@ -97,12 +93,38 @@ impl<'a, 'b, TType: Copy + PartialEq> LexerImplementation<'a, 'b, TType> {
         }
     }
 
-    fn update_source_reference<'c>(
+    fn process_non_skipped_token(
         current_source_reference: &mut &'a str,
-        next_token_parsed: &Token<TType>,
+        next_token_parsed_option: Option<&Token<'a, TType>>,
     ) -> () {
-        let index: usize = next_token_parsed.text.len();
-        *current_source_reference = &current_source_reference[index..];
+        match next_token_parsed_option {
+            Some(next_token_parsed) => {
+                LexerImplementation::update_source_reference(
+                    current_source_reference,
+                    next_token_parsed
+                );
+            },
+            _ => {},
+        };
+    }
+
+    fn process_skipped_token(
+        current_source_reference: &mut &'a str,
+        source_location: &mut TextLocation,
+        lex_spec: &'b dyn LexSpec<TType>,
+        next_token_parsed_option: Option<Token<'a, TType>>,
+    ) -> () {
+        match next_token_parsed_option {
+            Some(next_token_parsed) => {
+                LexerImplementation::update_source_reference(
+                    current_source_reference,
+                    &next_token_parsed
+                );
+
+                <LexerImplementation<TType>>::update_current_location(source_location, lex_spec, &next_token_parsed);
+            },
+            _ => {},
+        };
     }
 
     fn should_skip_token(lex_spec: &'b dyn LexSpec<TType>, token_option: Option<&Token<TType>>) -> bool {
@@ -116,23 +138,16 @@ impl<'a, 'b, TType: Copy + PartialEq> LexerImplementation<'a, 'b, TType> {
         source_location: &mut TextLocation,
         lex_spec: &'b dyn LexSpec<TType>,
     ) -> Option<Token<'a, TType>> {
-        let mut tokens_to_skip: Vec<Token<TType>> = vec![];
-
         let mut next_token_parsed_option: Option<Token<'a, TType>> =
             LexerImplementation::try_parse_next_token_from_source(lex_spec, current_source_reference);
 
         while LexerImplementation::should_skip_token(lex_spec, next_token_parsed_option.as_ref()) {
-            match next_token_parsed_option {
-                Some(next_token_parsed) => {
-                    LexerImplementation::update_source_reference(
-                        current_source_reference,
-                        &next_token_parsed
-                    );
-
-                    tokens_to_skip.push(next_token_parsed);
-                },
-                _ => {},
-            };
+            LexerImplementation::process_skipped_token(
+                current_source_reference,
+                source_location,
+                lex_spec,
+                next_token_parsed_option
+            );
 
             next_token_parsed_option = LexerImplementation::try_parse_next_token_from_source(
                 lex_spec,
@@ -140,19 +155,10 @@ impl<'a, 'b, TType: Copy + PartialEq> LexerImplementation<'a, 'b, TType> {
             );
         }
 
-        match next_token_parsed_option.as_ref() {
-            Some(next_token_parsed) => {
-                LexerImplementation::update_source_reference(
-                    current_source_reference,
-                    next_token_parsed
-                );
-            },
-            _ => {},
-        }
-
-        for token_to_skip in tokens_to_skip.iter() {
-            <LexerImplementation<TType>>::update_current_location(source_location, lex_spec, token_to_skip);
-        }
+        LexerImplementation::process_non_skipped_token(
+            current_source_reference,
+            next_token_parsed_option.as_ref()
+        );
 
         next_token_parsed_option
     }
@@ -164,6 +170,14 @@ impl<'a, 'b, TType: Copy + PartialEq> LexerImplementation<'a, 'b, TType> {
         } else {
             source_location.column += token.text.len() as u64;
         }
+    }
+
+    fn update_source_reference<'c>(
+        current_source_reference: &mut &'a str,
+        next_token_parsed: &Token<TType>,
+    ) -> () {
+        let index: usize = next_token_parsed.text.len();
+        *current_source_reference = &current_source_reference[index..];
     }
 }
 
