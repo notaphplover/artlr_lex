@@ -1,6 +1,7 @@
 [package]
 authors = ["Roberto Pintos López <roberto.pintos.lopez@gmail.com>"]
 categories = ["compilers"]
+description = "Another Rust tool for lexical analysis"
 edition = "2018"
 keywords = ["analyzer", "compiler", "language", "lexical", "recognition"]
 license-file = "LICENSE"
