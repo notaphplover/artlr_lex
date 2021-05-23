@@ -2,7 +2,7 @@
 authors = ["Roberto Pintos López <roberto.pintos.lopez@gmail.com>"]
 categories = ["compilers"]
 edition = "2018"
-keywords = ["analyzer", "compiler", "language", "lex", "lexical", "recognition"]
+keywords = ["analyzer", "compiler", "language", "lexical", "recognition"]
 license-file = "LICENSE"
 name = "artlr_lex"
 version = "0.1.0"
