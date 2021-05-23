@@ -80,7 +80,7 @@ impl<'a, 'b, TType: Copy + PartialEq> LexerImplementation<'a, 'b, TType> {
                     let text_location: TextLocation = self.current_location.clone();
                     let traceable_token: TraceableToken<TType> = TraceableToken::new(text_location, token);
 
-                    LexerImplementation::update_current_location(
+                    LexerImplementation::update_source_location(
                         &mut self.current_location,
                         self.lex_spec,
                         &traceable_token.token
@@ -121,7 +121,7 @@ impl<'a, 'b, TType: Copy + PartialEq> LexerImplementation<'a, 'b, TType> {
                     &next_token_parsed
                 );
 
-                <LexerImplementation<TType>>::update_current_location(source_location, lex_spec, &next_token_parsed);
+                <LexerImplementation<TType>>::update_source_location(source_location, lex_spec, &next_token_parsed);
             },
             _ => {},
         };
@@ -163,7 +163,7 @@ impl<'a, 'b, TType: Copy + PartialEq> LexerImplementation<'a, 'b, TType> {
         next_token_parsed_option
     }
 
-    fn update_current_location(source_location: &mut TextLocation, lex_spec: &'b dyn LexSpec<TType>, token: &Token<TType>) -> () {
+    fn update_source_location(source_location: &mut TextLocation, lex_spec: &'b dyn LexSpec<TType>, token: &Token<TType>) -> () {
         if token.t_type == lex_spec.get_new_line_token_type() {
             source_location.column = FIRST_COL;
             source_location.line += 1u64;
