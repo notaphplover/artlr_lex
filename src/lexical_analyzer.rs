@@ -1,4 +1,4 @@
-use crate::traceable_token::TraceableToken;
+use crate::token::traceable_token::TraceableToken;
 
 pub trait LexicalAnalyzer<'a, TType> {
     fn load_source(&mut self, source: &'a str) -> ();

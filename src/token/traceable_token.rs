@@ -1,4 +1,4 @@
-use crate::token::Token;
+use crate::token::token::Token;
 use crate::text_location::TextLocation;
 
 pub struct TraceableToken<'a, TType> {

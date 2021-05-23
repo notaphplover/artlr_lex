@@ -11,7 +11,7 @@ impl<'a, TType> Token<'a, TType> {
 
 #[cfg(test)]
 mod test {
-    use crate::token::Token;
+    use crate::token::token::Token;
 
     #[test]
     fn new_returns_instance() {

@@ -1,8 +1,8 @@
 use crate::lex_spec::LexSpec;
 use crate::text_location::TextLocation;
 use crate::lexical_analyzer::LexicalAnalyzer as LexicalAnalyzerTrait;
-use crate::traceable_token::TraceableToken;
-use crate::token::Token;
+use crate::token::traceable_token::TraceableToken;
+use crate::token::token::Token;
 use regex::Match;
 
 const FIRST_COL: u64 = 1u64;
@@ -199,7 +199,7 @@ mod test {
     use regex::Regex;
     use crate::lexical_analyzer_impl::LexicalAnalyzer;
     use crate::lexical_analyzer::LexicalAnalyzer as LexicalAnalyzerTrait;
-    use crate::traceable_token::TraceableToken;
+    use crate::token::traceable_token::TraceableToken;
 
     #[derive(Clone, Copy, Debug, PartialEq)]
     pub enum IgnoredTokenTypeTest {
