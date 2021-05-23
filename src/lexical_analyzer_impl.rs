@@ -1,6 +1,6 @@
 use crate::lex_spec::LexSpec;
 use crate::text_location::TextLocation;
-use crate::lexer::Lexer;
+use crate::lexical_analyzer::LexicalAnalyzer as LexicalAnalyzerTrait;
 use crate::traceable_token::TraceableToken;
 use crate::token::Token;
 use regex::Match;
@@ -8,16 +8,16 @@ use regex::Match;
 const FIRST_COL: u64 = 1u64;
 const FIRST_LINE: u64 = 1u64;
 
-pub struct LexerImplementation<'a, 'b, TType> {
+pub struct LexicalAnalyzer<'a, 'b, TType> {
     current_source_reference_option: Option<&'a str>,
     current_location: TextLocation,
     lex_spec: &'b dyn LexSpec<TType>,
 }
 
-impl<'a, 'b, TType> LexerImplementation<'a, 'b, TType> {
+impl<'a, 'b, TType> LexicalAnalyzer<'a, 'b, TType> {
     pub fn new(lex_spec: &'b dyn LexSpec<TType>) -> Self {
-        LexerImplementation {
-            current_location: <LexerImplementation<TType>>::get_starting_location(),
+        LexicalAnalyzer {
+            current_location: <LexicalAnalyzer<TType>>::get_starting_location(),
             current_source_reference_option: None,
             lex_spec
         }
@@ -28,13 +28,13 @@ impl<'a, 'b, TType> LexerImplementation<'a, 'b, TType> {
     }
 }
 
-impl<'a, 'b, TType> LexerImplementation<'a, 'b, TType> {
+impl<'a, 'b, TType> LexicalAnalyzer<'a, 'b, TType> {
     fn get_match_length(regex_match: &Match) -> usize {
         regex_match.end() - regex_match.start()
     }
 }
 
-impl<'a, 'b, TType: Copy> LexerImplementation<'a, 'b, TType> {
+impl<'a, 'b, TType: Copy> LexicalAnalyzer<'a, 'b, TType> {
     fn try_parse_next_token_from_source(lex_spec: &'b dyn LexSpec<TType>, source: &'a str) -> Option<Token<'a, TType>> {
         if source.len() == 0 {
             return Some(Token::new(lex_spec.get_eof_token(), ""));
@@ -49,7 +49,7 @@ impl<'a, 'b, TType: Copy> LexerImplementation<'a, 'b, TType> {
                 let regex_match: Match = regex_match_wrap.unwrap();
                 if current_token_wrap.is_none()
                     || current_token_wrap.as_ref().unwrap().text.len()
-                    < <LexerImplementation<TType>>::get_match_length(&regex_match)
+                    < <LexicalAnalyzer<TType>>::get_match_length(&regex_match)
                 {
                     let source_slice_match: &'a str =
                         &source[regex_match.start()..regex_match.end()];
@@ -62,7 +62,7 @@ impl<'a, 'b, TType: Copy> LexerImplementation<'a, 'b, TType> {
     }
 }
 
-impl<'a, 'b, TType: Copy + PartialEq> LexerImplementation<'a, 'b, TType> {
+impl<'a, 'b, TType: Copy + PartialEq> LexicalAnalyzer<'a, 'b, TType> {
 
     fn inner_next_token(&mut self) -> Option<TraceableToken<TType>> {
         let source_reference_option: Option<&mut &str> = self.current_source_reference_option.as_mut();
@@ -70,7 +70,7 @@ impl<'a, 'b, TType: Copy + PartialEq> LexerImplementation<'a, 'b, TType> {
         match source_reference_option {
             Some(current_source_reference) => {
                 let next_token_parsed_option=
-                    LexerImplementation::try_parse_filtered_token(
+                    LexicalAnalyzer::try_parse_filtered_token(
                         current_source_reference,
                         &mut self.current_location,
                         self.lex_spec
@@ -80,7 +80,7 @@ impl<'a, 'b, TType: Copy + PartialEq> LexerImplementation<'a, 'b, TType> {
                     let text_location: TextLocation = self.current_location.clone();
                     let traceable_token: TraceableToken<TType> = TraceableToken::new(text_location, token);
 
-                    LexerImplementation::update_source_location(
+                    LexicalAnalyzer::update_source_location(
                         &mut self.current_location,
                         self.lex_spec,
                         &traceable_token.token
@@ -99,7 +99,7 @@ impl<'a, 'b, TType: Copy + PartialEq> LexerImplementation<'a, 'b, TType> {
     ) -> () {
         match next_token_parsed_option {
             Some(next_token_parsed) => {
-                LexerImplementation::update_source_reference(
+                LexicalAnalyzer::update_source_reference(
                     current_source_reference,
                     next_token_parsed
                 );
@@ -116,12 +116,12 @@ impl<'a, 'b, TType: Copy + PartialEq> LexerImplementation<'a, 'b, TType> {
     ) -> () {
         match next_token_parsed_option {
             Some(next_token_parsed) => {
-                LexerImplementation::update_source_reference(
+                LexicalAnalyzer::update_source_reference(
                     current_source_reference,
                     &next_token_parsed
                 );
 
-                <LexerImplementation<TType>>::update_source_location(source_location, lex_spec, &next_token_parsed);
+                <LexicalAnalyzer<TType>>::update_source_location(source_location, lex_spec, &next_token_parsed);
             },
             _ => {},
         };
@@ -139,23 +139,23 @@ impl<'a, 'b, TType: Copy + PartialEq> LexerImplementation<'a, 'b, TType> {
         lex_spec: &'b dyn LexSpec<TType>,
     ) -> Option<Token<'a, TType>> {
         let mut next_token_parsed_option: Option<Token<'a, TType>> =
-            LexerImplementation::try_parse_next_token_from_source(lex_spec, current_source_reference);
+            LexicalAnalyzer::try_parse_next_token_from_source(lex_spec, current_source_reference);
 
-        while LexerImplementation::should_skip_token(lex_spec, next_token_parsed_option.as_ref()) {
-            LexerImplementation::process_skipped_token(
+        while LexicalAnalyzer::should_skip_token(lex_spec, next_token_parsed_option.as_ref()) {
+            LexicalAnalyzer::process_skipped_token(
                 current_source_reference,
                 source_location,
                 lex_spec,
                 next_token_parsed_option
             );
 
-            next_token_parsed_option = LexerImplementation::try_parse_next_token_from_source(
+            next_token_parsed_option = LexicalAnalyzer::try_parse_next_token_from_source(
                 lex_spec,
                 current_source_reference
             );
         }
 
-        LexerImplementation::process_non_skipped_token(
+        LexicalAnalyzer::process_non_skipped_token(
             current_source_reference,
             next_token_parsed_option.as_ref()
         );
@@ -181,10 +181,10 @@ impl<'a, 'b, TType: Copy + PartialEq> LexerImplementation<'a, 'b, TType> {
     }
 }
 
-impl<'a, 'b, TType: Copy + PartialEq> Lexer<'a, TType> for LexerImplementation<'a, 'b, TType> {
+impl<'a, 'b, TType: Copy + PartialEq> LexicalAnalyzerTrait<'a, TType> for LexicalAnalyzer<'a, 'b, TType> {
     fn load_source(&mut self, source: &'a str) -> () {
         self.current_source_reference_option = Some(source);
-        self.current_location = <LexerImplementation<TType>>::get_starting_location();
+        self.current_location = <LexicalAnalyzer<TType>>::get_starting_location();
     }
 
     fn next_token(&mut self) -> Option<TraceableToken<TType>> {
@@ -197,8 +197,8 @@ mod test {
     use crate::lex_spec::LexSpec;
     use crate::token_regex::TokenRegex;
     use regex::Regex;
-    use crate::lexer_implementation::LexerImplementation;
-    use crate::lexer::Lexer;
+    use crate::lexical_analyzer_impl::LexicalAnalyzer;
+    use crate::lexical_analyzer::LexicalAnalyzer as LexicalAnalyzerTrait;
     use crate::traceable_token::TraceableToken;
 
     #[derive(Clone, Copy, Debug, PartialEq)]
@@ -271,11 +271,11 @@ mod test {
     #[test]
     fn next_token_returns_valid_token() {
         let lex_spec: LexSpecTest = LexSpecTest::new();
-        let mut lexer_implementation: LexerImplementation<TokenTypeTest> = LexerImplementation::new(&lex_spec);
+        let mut lexical_analyzer: LexicalAnalyzer<TokenTypeTest> = LexicalAnalyzer::new(&lex_spec);
 
-        lexer_implementation.load_source("a");
+        lexical_analyzer.load_source("a");
 
-        let traceable_token_option: Option<TraceableToken<TokenTypeTest>> = lexer_implementation.next_token();
+        let traceable_token_option: Option<TraceableToken<TokenTypeTest>> = lexical_analyzer.next_token();
 
         let traceable_token: TraceableToken<TokenTypeTest> = traceable_token_option.unwrap();
 
@@ -288,11 +288,11 @@ mod test {
     #[test]
     fn next_token_returns_valid_token_after_skip_ignored_symbol() {
         let lex_spec: LexSpecTest = LexSpecTest::new();
-        let mut lexer_implementation: LexerImplementation<TokenTypeTest> = LexerImplementation::new(&lex_spec);
+        let mut lexical_analyzer: LexicalAnalyzer<TokenTypeTest> = LexicalAnalyzer::new(&lex_spec);
 
-        lexer_implementation.load_source("  a");
+        lexical_analyzer.load_source("  a");
 
-        let traceable_token_option: Option<TraceableToken<TokenTypeTest>> = lexer_implementation.next_token();
+        let traceable_token_option: Option<TraceableToken<TokenTypeTest>> = lexical_analyzer.next_token();
 
         let traceable_token: TraceableToken<TokenTypeTest> = traceable_token_option.unwrap();
 
@@ -305,11 +305,11 @@ mod test {
     #[test]
     fn next_token_returns_valid_token_after_line_delimiter_symbol() {
         let lex_spec: LexSpecTest = LexSpecTest::new();
-        let mut lexer_implementation: LexerImplementation<TokenTypeTest> = LexerImplementation::new(&lex_spec);
+        let mut lexical_analyzer: LexicalAnalyzer<TokenTypeTest> = LexicalAnalyzer::new(&lex_spec);
 
-        lexer_implementation.load_source("\na");
+        lexical_analyzer.load_source("\na");
 
-        let traceable_token_option: Option<TraceableToken<TokenTypeTest>> = lexer_implementation.next_token();
+        let traceable_token_option: Option<TraceableToken<TokenTypeTest>> = lexical_analyzer.next_token();
 
         let traceable_token: TraceableToken<TokenTypeTest> = traceable_token_option.unwrap();
 
@@ -322,12 +322,12 @@ mod test {
     #[test]
     fn next_token_returns_valid_token_after_next_token_call() {
         let lex_spec: LexSpecTest = LexSpecTest::new();
-        let mut lexer_implementation: LexerImplementation<TokenTypeTest> = LexerImplementation::new(&lex_spec);
+        let mut lexical_analyzer: LexicalAnalyzer<TokenTypeTest> = LexicalAnalyzer::new(&lex_spec);
 
-        lexer_implementation.load_source("a b");
+        lexical_analyzer.load_source("a b");
 
-        lexer_implementation.next_token();
-        let traceable_token_option: Option<TraceableToken<TokenTypeTest>> = lexer_implementation.next_token();
+        lexical_analyzer.next_token();
+        let traceable_token_option: Option<TraceableToken<TokenTypeTest>> = lexical_analyzer.next_token();
 
         let traceable_token: TraceableToken<TokenTypeTest> = traceable_token_option.unwrap();
 
@@ -340,11 +340,11 @@ mod test {
     #[test]
     fn next_token_returns_eof_token_on_empty_source() {
         let lex_spec: LexSpecTest = LexSpecTest::new();
-        let mut lexer_implementation: LexerImplementation<TokenTypeTest> = LexerImplementation::new(&lex_spec);
+        let mut lexical_analyzer: LexicalAnalyzer<TokenTypeTest> = LexicalAnalyzer::new(&lex_spec);
 
-        lexer_implementation.load_source("");
+        lexical_analyzer.load_source("");
 
-        let traceable_token_option: Option<TraceableToken<TokenTypeTest>> = lexer_implementation.next_token();
+        let traceable_token_option: Option<TraceableToken<TokenTypeTest>> = lexical_analyzer.next_token();
 
         let traceable_token: TraceableToken<TokenTypeTest> = traceable_token_option.unwrap();
 
@@ -357,11 +357,11 @@ mod test {
     #[test]
     fn next_token_returns_no_token() {
         let lex_spec: LexSpecTest = LexSpecTest::new();
-        let mut lexer_implementation: LexerImplementation<TokenTypeTest> = LexerImplementation::new(&lex_spec);
+        let mut lexical_analyzer: LexicalAnalyzer<TokenTypeTest> = LexicalAnalyzer::new(&lex_spec);
 
-        lexer_implementation.load_source("()");
+        lexical_analyzer.load_source("()");
 
-        let traceable_token_option: Option<TraceableToken<TokenTypeTest>> = lexer_implementation.next_token();
+        let traceable_token_option: Option<TraceableToken<TokenTypeTest>> = lexical_analyzer.next_token();
 
         assert!(traceable_token_option.is_none());
     }
@@ -369,11 +369,11 @@ mod test {
     #[test]
     fn next_token_returns_no_token_after_skipped_token() {
         let lex_spec: LexSpecTest = LexSpecTest::new();
-        let mut lexer_implementation: LexerImplementation<TokenTypeTest> = LexerImplementation::new(&lex_spec);
+        let mut lexical_analyzer: LexicalAnalyzer<TokenTypeTest> = LexicalAnalyzer::new(&lex_spec);
 
-        lexer_implementation.load_source("  ()");
+        lexical_analyzer.load_source("  ()");
 
-        let traceable_token_option: Option<TraceableToken<TokenTypeTest>> = lexer_implementation.next_token();
+        let traceable_token_option: Option<TraceableToken<TokenTypeTest>> = lexical_analyzer.next_token();
 
         assert!(traceable_token_option.is_none());
     }
