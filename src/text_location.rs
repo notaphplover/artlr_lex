@@ -9,6 +9,14 @@ impl TextLocation {
     }
 }
 
+impl Copy for TextLocation { }
+
+impl Clone for TextLocation {
+    fn clone(&self) -> Self {
+        *self
+    }
+}
+
 #[cfg(test)]
 mod test {
     use crate::text_location::TextLocation;
