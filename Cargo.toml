@@ -1,5 +1,5 @@
 [package]
-name = "rust_lex"
+name = "artlr_lex"
 version = "0.1.0"
 authors = ["Roberto Pintos López <roberto.pintos.lopez@gmail.com>"]
 edition = "2018"
