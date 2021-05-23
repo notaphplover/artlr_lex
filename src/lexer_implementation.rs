@@ -353,4 +353,28 @@ mod test {
         assert_eq!(traceable_token.location.column, 1);
         assert_eq!(traceable_token.location.line, 1);
     }
+
+    #[test]
+    fn next_token_returns_no_token() {
+        let lex_spec: LexSpecTest = LexSpecTest::new();
+        let mut lexer_implementation: LexerImplementation<TokenTypeTest> = LexerImplementation::new(&lex_spec);
+
+        lexer_implementation.load_source("()");
+
+        let traceable_token_option: Option<TraceableToken<TokenTypeTest>> = lexer_implementation.next_token();
+
+        assert!(traceable_token_option.is_none());
+    }
+
+    #[test]
+    fn next_token_returns_no_token_after_skipped_token() {
+        let lex_spec: LexSpecTest = LexSpecTest::new();
+        let mut lexer_implementation: LexerImplementation<TokenTypeTest> = LexerImplementation::new(&lex_spec);
+
+        lexer_implementation.load_source("  ()");
+
+        let traceable_token_option: Option<TraceableToken<TokenTypeTest>> = lexer_implementation.next_token();
+
+        assert!(traceable_token_option.is_none());
+    }
 }
