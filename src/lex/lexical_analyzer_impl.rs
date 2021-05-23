@@ -1,9 +1,10 @@
-use crate::lex_spec::LexSpec;
+use regex::Match;
+
+use crate::lex::lexical_analyzer::LexicalAnalyzer as LexicalAnalyzerTrait;
+use crate::lex::lex_spec::LexSpec;
 use crate::text_location::TextLocation;
-use crate::lexical_analyzer::LexicalAnalyzer as LexicalAnalyzerTrait;
 use crate::token::traceable_token::TraceableToken;
 use crate::token::token::Token;
-use regex::Match;
 
 const FIRST_COL: u64 = 1u64;
 const FIRST_LINE: u64 = 1u64;
@@ -194,12 +195,13 @@ impl<'a, 'b, TType: Copy + PartialEq> LexicalAnalyzerTrait<'a, TType> for Lexica
 
 #[cfg(test)]
 mod test {
-    use crate::lex_spec::LexSpec;
-    use crate::token_regex::TokenRegex;
     use regex::Regex;
-    use crate::lexical_analyzer_impl::LexicalAnalyzer;
-    use crate::lexical_analyzer::LexicalAnalyzer as LexicalAnalyzerTrait;
+
+    use crate::lex::lex_spec::LexSpec;
+    use crate::lex::lexical_analyzer::LexicalAnalyzer as LexicalAnalyzerTrait;
+    use crate::lex::lexical_analyzer_impl::LexicalAnalyzer;
     use crate::token::traceable_token::TraceableToken;
+    use crate::token_regex::TokenRegex;
 
     #[derive(Clone, Copy, Debug, PartialEq)]
     pub enum IgnoredTokenTypeTest {
