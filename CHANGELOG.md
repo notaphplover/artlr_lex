@@ -19,10 +19,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 
 
-## [UNRELEASED]
+## v0.1.0
 
 ### Docs
  - Added `CHANGELOG`.
+
+### Fixed
+ - Cargo.lock file is ignored as best practices suggests.
 
 
 
