@@ -1,13 +1,13 @@
 use crate::token::token::Token;
 use crate::text_location::TextLocation;
 
-pub struct TraceableToken<'a, TType> {
+pub struct TraceableToken<TType> {
     pub location: TextLocation,
-    pub token: Token<'a, TType>,
+    pub token: Token<TType>,
 }
 
-impl<'a, TType> TraceableToken<'a, TType> {
-    pub fn new(location: TextLocation, token: Token<'a, TType>) -> Self {
+impl<TType> TraceableToken<TType> {
+    pub fn new(location: TextLocation, token: Token<TType>) -> Self {
         TraceableToken { location, token }
     }
 }

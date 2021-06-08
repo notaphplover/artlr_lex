@@ -19,6 +19,22 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 
 
+## [UNRELEASED]
+
+### Added
+- Added `LexicalAnalysis` struct.
+
+### Changed
+- [BC] Updated `Token` to contain a `String`. `Token` no longer has an `a` lifetime.
+- [BC] `TraceableToken` no longer has an `a` lifetime.
+
+### Removed
+- [BC] Removed `LexicalAnalyzer` trait. `LexicalAnalysis` must be used instead.
+- [BC] Removed `LexicalAnalyzer` struct. `LexicalAnalysis` must be used instead.
+
+
+
+
 ## v0.1.1
 
 ### Docs
