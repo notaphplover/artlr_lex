@@ -17,3 +17,13 @@ impl<TType: Clone> Clone for TraceableToken<TType> {
         Self::new(self.location.clone(), self.token.clone())
     }
 }
+
+impl<TType: PartialEq> PartialEq for TraceableToken<TType> {
+    fn eq(&self, other: &Self) -> bool {
+        self.token.eq(&other.token)
+    }
+
+    fn ne(&self, other: &Self) -> bool {
+        self.token.ne(&other.token)
+    }
+}

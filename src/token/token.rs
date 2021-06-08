@@ -15,6 +15,16 @@ impl<TType: Clone> Clone for Token<TType> {
     }
 }
 
+impl<TType: PartialEq> PartialEq for Token<TType> {
+    fn eq(&self, other: &Self) -> bool {
+        self.t_type.eq(&other.t_type)
+    }
+
+    fn ne(&self, other: &Self) -> bool {
+        self.t_type.ne(&other.t_type)
+    }
+}
+
 #[cfg(test)]
 mod test {
     use crate::token::token::Token;
