@@ -27,6 +27,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - [BC] Updated `Token` to contain a `String`. `Token` no longer has an `a` lifetime.
 - [BC] `TraceableToken` no longer has an `a` lifetime.
+- Updated `Token` with `Clone` trait implementation.
+- Updated `TraceableToken` with `Clone` trait implementation.
 
 ### Removed
 - [BC] Removed `LexicalAnalyzer` trait. `LexicalAnalysis` must be used instead.
