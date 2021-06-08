@@ -9,6 +9,12 @@ impl<TType> Token<TType> {
     }
 }
 
+impl<TType: Clone> Clone for Token<TType> {
+    fn clone(&self) -> Self {
+        Self::new(self.t_type.clone(), String::from(&self.text))
+    }
+}
+
 #[cfg(test)]
 mod test {
     use crate::token::token::Token;
