@@ -15,7 +15,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Security
 ### Docs
 -->
-## [UNRELEASED]
+
+
+
+
+## v0.2.1
 
 ### Changed
 - Updated `Token` with `PartialEq` trait implementation.
