@@ -19,7 +19,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 
 
-## [UNRELEASED]
+## v0.2.0
 
 ### Added
 - Added `LexicalAnalysis` struct.
