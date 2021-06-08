@@ -11,3 +11,9 @@ impl<TType> TraceableToken<TType> {
         TraceableToken { location, token }
     }
 }
+
+impl<TType: Clone> Clone for TraceableToken<TType> {
+    fn clone(&self) -> Self {
+        Self::new(self.location.clone(), self.token.clone())
+    }
+}
