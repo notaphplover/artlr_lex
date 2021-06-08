@@ -19,6 +19,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 
 
+## [UNRELEASED]
+
+### Changed
+- [BC] Updated `LexicalAnalysis` to return eof tokens once
+
+
+
+
 ## v0.2.1
 
 ### Changed

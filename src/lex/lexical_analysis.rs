@@ -10,6 +10,7 @@ const FIRST_LINE: u64 = 1u64;
 
 pub struct LexicalAnalysis<'a, T> {
     current_location: TextLocation,
+    eof_returned: bool,
     lex_spec: &'a dyn LexSpec<T>,
     source: &'a str,
 }
@@ -23,12 +24,22 @@ impl<T> LexicalAnalysis<'_, T> {
     fn get_starting_location() -> TextLocation {
         TextLocation::new(FIRST_COL, FIRST_LINE)
     }
+
+    fn try_return_eof(&mut self) ->Option<Token<T>> {
+        if self.eof_returned {
+            None
+        } else {
+            self.eof_returned = true;
+            Some(Token::new(self.lex_spec.get_eof_token(), String::from("")))
+        }
+    }
 }
 
 impl<'a, T> LexicalAnalysis<'a, T> {
     pub fn new(source: &'a str, lex_spec: &'a dyn LexSpec<T>) -> Self {
         LexicalAnalysis {
             current_location: Self::get_starting_location(),
+            eof_returned: false,
             lex_spec,
             source,
         }
@@ -36,9 +47,9 @@ impl<'a, T> LexicalAnalysis<'a, T> {
 }
 
 impl<'a, T: Copy> LexicalAnalysis<'a, T> {
-    fn try_parse_next_token_from_source(&self) -> Option<Token<T>> {
+    fn try_parse_next_token_from_source(&mut self) -> Option<Token<T>> {
         if self.source.len() == 0 {
-            return Some(Token::new(self.lex_spec.get_eof_token(), String::from("")));
+            return self.try_return_eof();
         }
 
         let mut current_token_wrap: Option<Token<T>> = Option::None;
@@ -323,6 +334,18 @@ mod test {
     fn next_token_returns_no_token_after_skipped_token() {
         let lex_spec: LexSpecTest = LexSpecTest::new();
         let mut lexical_analysis = LexicalAnalysis::new("  ()", &lex_spec);
+
+        let traceable_token_option: Option<TraceableToken<TokenTypeTest>> = lexical_analysis.next();
+
+        assert!(traceable_token_option.is_none());
+    }
+
+    #[test]
+    fn next_token_returns_no_token_on_empty_source_if_eof_has_been_returned() {
+        let lex_spec: LexSpecTest = LexSpecTest::new();
+        let mut lexical_analysis = LexicalAnalysis::new("", &lex_spec);
+
+        lexical_analysis.next();
 
         let traceable_token_option: Option<TraceableToken<TokenTypeTest>> = lexical_analysis.next();
 
